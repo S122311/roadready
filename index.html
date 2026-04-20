@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RoadReady</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">RoadReady</p>
+        <h1 id="heroTitle">Pre-trip truck checks before dispatch.</h1>
+      </div>
+      <div class="login-card" aria-label="Company account access">
+        <div class="language-toggle" aria-label="Language">
+          <button id="englishButton" class="tab-button active" type="button">English</button>
+          <button id="spanishButton" class="tab-button" type="button">Español</button>
+        </div>
+        <div class="account-tabs">
+          <button id="showLogin" class="tab-button active" type="button">Login</button>
+          <button id="showRegister" class="tab-button" type="button">Register</button>
+        </div>
+        <form id="loginForm" class="account-form">
+          <label>
+            <span id="companyCodeLabel">Company code</span>
+            <input id="companyCode" type="text" placeholder="YOUR-FLEET" autocomplete="organization">
+          </label>
+          <button id="loginButton" type="submit">Open Dashboard</button>
+        </form>
+        <form id="registerForm" class="account-form hidden">
+          <label>
+            <span id="registerCompanyNameLabel">Company name</span>
+            <input id="registerCompanyName" type="text" placeholder="Summit Freight">
+          </label>
+          <label>
+            <span id="registerCompanyCodeLabel">Company code</span>
+            <input id="registerCompanyCode" type="text" placeholder="SUMMIT-FLEET">
+          </label>
+          <label>
+            <span id="registerCompanyDotLabel">DOT or account number</span>
+            <input id="registerCompanyDot" type="text" placeholder="DOT-284100">
+          </label>
+          <label>
+            <span id="registerCompanyEmailLabel">Company email</span>
+            <input id="registerCompanyEmail" type="email" placeholder="dispatch@summitfreight.com" autocomplete="email">
+          </label>
+          <label>
+            <span id="registerCompanyPhoneLabel">Company phone</span>
+            <input id="registerCompanyPhone" type="tel" placeholder="(555) 123-4567" autocomplete="tel">
+          </label>
+          <label>
+            <span id="registerAdminPinLabel">Admin PIN</span>
+            <input id="registerAdminPin" type="password" placeholder="Create admin PIN" autocomplete="new-password">
+          </label>
+          <button type="submit">Create Company</button>
+        </form>
+        <p id="accountStatus" class="account-status">Create or open a company account.</p>
+        <form id="adminForm" class="account-form hidden">
+          <label>
+            <span id="adminPinLabel">Admin PIN</span>
+            <input id="adminPin" type="password" placeholder="Enter admin PIN" autocomplete="current-password">
+          </label>
+          <div class="admin-actions">
+            <button id="unlockAdmin" type="submit">Unlock Admin</button>
+            <button id="lockAdmin" class="secondary hidden" type="button">Lock Admin</button>
+          </div>
+        </form>
+        <p id="adminStatus" class="account-status">Admin tools locked.</p>
+      </div>
+    </header>
+
+    <section id="statusStrip" class="status-strip admin-only hidden" aria-label="Fleet status">
+      <article>
+        <strong id="readyCount">0</strong>
+        <span id="readyLabel">ready trucks</span>
+      </article>
+      <article>
+        <strong id="failedCount">0</strong>
+        <span id="failedLabel">failed checks</span>
+      </article>
+      <article>
+        <strong id="pendingCount">0</strong>
+        <span id="pendingLabel">not inspected</span>
+      </article>
+      <article>
+        <strong id="inspectionCount">0</strong>
+        <span id="inspectionLabel">inspection records</span>
+      </article>
+    </section>
+
+    <section class="main-grid">
+      <section class="truck-stage" aria-label="Interactive truck inspection model">
+        <div class="stage-copy">
+          <p class="eyebrow">3D Walkaround</p>
+          <h2 id="walkaroundTitle">Click a truck part to inspect it.</h2>
+          <p id="walkaroundCopy">Drag to rotate. Failed items require a note before the driver can sign and submit.</p>
+        </div>
+        <div id="truckCanvas" class="truck-canvas"></div>
+        <label class="selected-part">
+          <span id="selectedPartLabel">Selected part</span>
+          <select id="selectedPartSelect"></select>
+        </label>
+      </section>
+
+      <section class="inspection-panel" aria-label="Driver safety checklist">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Driver Check</p>
+            <h2 id="checklistTitle">Safety checklist</h2>
+          </div>
+          <button id="resetInspection" class="secondary" type="button">Reset Form</button>
+        </div>
+
+        <div class="form-grid">
+          <label>
+            <span id="truckLabel">Truck</span>
+            <select id="truckSelect"></select>
+          </label>
+          <label>
+            <span id="driverCodeLabel">Driver code</span>
+            <input id="driverCode" type="text" placeholder="Example: 4821" inputmode="numeric">
+          </label>
+          <label>
+            <span id="inspectorCodeLabel">Inspector code</span>
+            <input id="inspectorCode" type="text" placeholder="Example: 7359">
+          </label>
+        </div>
+
+        <div class="qr-row">
+          <div id="qrPreview" class="qr-preview" aria-label="Truck QR code preview"></div>
+          <div>
+            <strong id="qrTruckLabel">Truck QR</strong>
+            <p id="qrCopy">Print this code and place it inside the cab. Scanning it opens the truck inspection form.</p>
+            <button id="openQrButton" class="secondary qr-open-button" type="button">Open QR</button>
+          </div>
+        </div>
+
+        <div id="checklist" class="checklist"></div>
+
+        <label class="photo-field">
+          <span id="photoLabel">Damage photo or document</span>
+          <input id="photoInput" type="file" accept="image/*">
+          <span id="photoName">No file attached</span>
+        </label>
+
+        <div class="signature-grid">
+          <div class="signature-wrap">
+            <div class="signature-header">
+              <strong id="driverSignatureLabel">Driver signature</strong>
+              <button id="clearSignature" class="text-button" type="button">Clear</button>
+            </div>
+            <canvas id="signaturePad" width="640" height="160" aria-label="Signature pad"></canvas>
+          </div>
+
+          <div class="signature-wrap">
+            <div class="signature-header">
+              <strong id="inspectorSignatureLabel">Inspector signature</strong>
+              <button id="clearInspectorSignature" class="text-button" type="button">Clear</button>
+            </div>
+            <canvas id="inspectorSignaturePad" width="640" height="160" aria-label="Inspector signature pad"></canvas>
+          </div>
+        </div>
+
+        <div id="formStatus" class="form-status" role="status"></div>
+        <button id="submitInspection" class="submit-button" type="button">Submit Inspection</button>
+      </section>
+    </section>
+
+    <section id="adminLockedNotice" class="admin-locked">
+      <strong id="adminLockedTitle">Admin tools are locked.</strong>
+      <p id="adminLockedCopy">Unlock admin access to add trucks, add drivers, and view previous checks.</p>
+    </section>
+
+    <section id="operationsGrid" class="operations-grid admin-only hidden">
+      <section class="manager-panel">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Manager Dashboard</p>
+            <h2 id="fleetTitle">Fleet status</h2>
+          </div>
+        </div>
+        <div id="truckList" class="truck-list"></div>
+      </section>
+
+      <section class="manager-panel">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Company Setup</p>
+            <h2 id="setupTitle">Register trucks and drivers</h2>
+          </div>
+        </div>
+        <form id="truckForm" class="setup-form">
+          <label>
+            <span id="newTruckNameLabel">Truck name</span>
+            <input id="newTruckName" type="text" placeholder="Truck 118">
+          </label>
+          <label>
+            <span id="newTruckPlateLabel">Plate or unit number</span>
+            <input id="newTruckPlate" type="text" placeholder="CO-4821">
+          </label>
+          <label>
+            <span id="newTruckVinLabel">VIN ending</span>
+            <input id="newTruckVin" type="text" placeholder="7K9214">
+          </label>
+          <button type="submit">Add Truck</button>
+        </form>
+        <form id="driverForm" class="setup-form">
+          <label>
+            <span id="newDriverNameLabel">Driver name</span>
+            <input id="newDriverName" type="text" placeholder="Maria Lopez">
+          </label>
+          <label>
+            <span id="newDriverCodeLabel">Driver code</span>
+            <input id="newDriverCode" type="text" placeholder="7359">
+          </label>
+          <button type="submit">Add Driver</button>
+        </form>
+        <div id="driverList" class="driver-list"></div>
+      </section>
+
+      <section class="manager-panel">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Billing</p>
+            <h2 id="billingTitle">Subscription</h2>
+          </div>
+        </div>
+        <div id="billingStatus" class="billing-status"></div>
+        <div class="plan-grid">
+          <article class="plan-card">
+            <strong id="starterPlanTitle">Starter</strong>
+            <span id="starterPlanCopy">Small fleet essentials.</span>
+            <form action="/create-checkout-session" method="POST" class="checkout-form">
+              <input type="hidden" name="lookup_key" value="starter">
+              <input type="hidden" name="company_id" value="">
+              <button data-plan="starter" type="submit">Subscribe</button>
+            </form>
+          </article>
+          <article class="plan-card">
+            <strong id="fleetPlanTitle">Fleet</strong>
+            <span id="fleetPlanCopy">Growing fleet operations.</span>
+            <form action="/create-checkout-session" method="POST" class="checkout-form">
+              <input type="hidden" name="lookup_key" value="fleet">
+              <input type="hidden" name="company_id" value="">
+              <button data-plan="fleet" type="submit">Subscribe</button>
+            </form>
+          </article>
+          <article class="plan-card">
+            <strong id="enterprisePlanTitle">Enterprise</strong>
+            <span id="enterprisePlanCopy">Larger teams and compliance needs.</span>
+            <form action="/create-checkout-session" method="POST" class="checkout-form">
+              <input type="hidden" name="lookup_key" value="enterprise">
+              <input type="hidden" name="company_id" value="">
+              <button data-plan="enterprise" type="submit">Subscribe</button>
+            </form>
+          </article>
+        </div>
+      </section>
+
+      <section class="manager-panel history-panel">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Inspection History</p>
+            <h2 id="historyTitle">Recent records</h2>
+          </div>
+        </div>
+        <div id="historyList" class="history-list"></div>
+      </section>
+    </section>
+  </main>
+
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

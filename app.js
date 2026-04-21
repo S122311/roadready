@@ -48,11 +48,39 @@ const translations = {
     truckLabel: "Truck",
     driverCodeLabel: "Driver code",
     inspectorCodeLabel: "Inspector code",
+    equipmentConfigLabel: "Equipment setup",
+    truckOnly: "Truck only",
+    truckTrailer: "Truck + trailer connected",
+    trailerUnitLabel: "Trailer or load unit",
+    loadStatusLabel: "Load status",
+    loadEmpty: "Empty",
+    loadLoaded: "Loaded",
+    loadReturning: "Returning with trailer",
     truckQr: "Truck QR",
     qrCopy: "Print this code and place it inside the cab. Scanning it opens the truck inspection form.",
     openQr: "Open QR",
     photoLabel: "Damage photo or document",
+    photoHelpTruckOnly: "Take 4 photos now: truck front, truck back, left side, and right side.",
+    photoHelpTruckTrailer: "Take 8 photos now: truck front, truck back, truck left, truck right, trailer front, trailer back, trailer left, and trailer right.",
+    photoStatusLabel: "Photo set",
+    photoStatusClear: "No visible damage",
+    photoStatusIssue: "Damage or issue documented",
+    photoUploadLabel: "Inspection photos",
     noFile: "No file attached",
+    photosAdded: "{count} of {required} required photos attached",
+    removePhoto: "Remove",
+    takePhoto: "Take photo",
+    retakePhoto: "Retake photo",
+    truckFront: "Truck Front",
+    truckBack: "Truck Back",
+    truckLeft: "Truck Left Side",
+    truckRight: "Truck Right Side",
+    trailerFront: "Trailer Front",
+    trailerBack: "Trailer Back",
+    trailerLeft: "Trailer Left Side",
+    trailerRight: "Trailer Right Side",
+    photoRequiredBeforeSign: "Take all {required} required inspection photos before signing.",
+    photoRequiredBeforeSubmit: "Take all {required} required inspection photos before submitting the inspection.",
     driverSignatureLabel: "Driver signature",
     inspectorSignatureLabel: "Inspector signature",
     clear: "Clear",
@@ -108,6 +136,7 @@ const translations = {
     registerTruckSubmit: "Register a truck before submitting an inspection.",
     validDriver: "Enter a valid driver code before submitting.",
     validInspector: "Enter the inspector code before submitting.",
+    trailerUnitRequired: "Enter the trailer or load unit when a trailer is connected.",
     completeMissing: "Finish every checklist item. Missing: {items}.",
     failedNotes: "Failed items need a short note before dispatch can review them.",
     driverSignatureRequired: "Driver signature is required.",
@@ -180,11 +209,39 @@ const translations = {
     truckLabel: "Camión",
     driverCodeLabel: "Código del conductor",
     inspectorCodeLabel: "Código del inspector",
+    equipmentConfigLabel: "Configuración del equipo",
+    truckOnly: "Solo camión",
+    truckTrailer: "Camión + remolque conectado",
+    trailerUnitLabel: "Remolque o unidad de carga",
+    loadStatusLabel: "Estado de la carga",
+    loadEmpty: "Vacío",
+    loadLoaded: "Cargado",
+    loadReturning: "Regreso con remolque",
     truckQr: "QR del camión",
     qrCopy: "Imprime este código y colócalo dentro de la cabina. Al escanearlo se abre el formulario.",
     openQr: "Abrir QR",
     photoLabel: "Foto o documento del daño",
+    photoHelpTruckOnly: "Toma 4 fotos ahora: frente del camión, parte trasera, lado izquierdo y lado derecho.",
+    photoHelpTruckTrailer: "Toma 8 fotos ahora: frente y parte trasera del camión, lados izquierdo y derecho del camión, frente y parte trasera del remolque, lados izquierdo y derecho del remolque.",
+    photoStatusLabel: "Juego de fotos",
+    photoStatusClear: "Sin daños visibles",
+    photoStatusIssue: "Daño o problema documentado",
+    photoUploadLabel: "Fotos de inspección",
     noFile: "Sin archivo adjunto",
+    photosAdded: "{count} de {required} fotos requeridas adjuntas",
+    removePhoto: "Quitar",
+    takePhoto: "Tomar foto",
+    retakePhoto: "Volver a tomar",
+    truckFront: "Frente del camión",
+    truckBack: "Parte trasera del camión",
+    truckLeft: "Lado izquierdo del camión",
+    truckRight: "Lado derecho del camión",
+    trailerFront: "Frente del remolque",
+    trailerBack: "Parte trasera del remolque",
+    trailerLeft: "Lado izquierdo del remolque",
+    trailerRight: "Lado derecho del remolque",
+    photoRequiredBeforeSign: "Toma las {required} fotos requeridas antes de firmar.",
+    photoRequiredBeforeSubmit: "Toma las {required} fotos requeridas antes de enviar la inspección.",
     driverSignatureLabel: "Firma del conductor",
     inspectorSignatureLabel: "Firma del inspector",
     clear: "Borrar",
@@ -240,6 +297,7 @@ const translations = {
     registerTruckSubmit: "Registra un camión antes de enviar la inspección.",
     validDriver: "Ingresa un código de conductor válido.",
     validInspector: "Ingresa el código del inspector.",
+    trailerUnitRequired: "Ingresa el remolque o unidad de carga cuando haya un remolque conectado.",
     completeMissing: "Completa todos los puntos. Faltan: {items}.",
     failedNotes: "Los puntos fallidos necesitan una nota.",
     driverSignatureRequired: "La firma del conductor es obligatoria.",
@@ -335,6 +393,13 @@ const els = {
   truckLabel: document.getElementById("truckLabel"),
   driverCodeLabel: document.getElementById("driverCodeLabel"),
   inspectorCodeLabel: document.getElementById("inspectorCodeLabel"),
+  equipmentConfigLabel: document.getElementById("equipmentConfigLabel"),
+  equipmentConfig: document.getElementById("equipmentConfig"),
+  trailerUnitField: document.getElementById("trailerUnitField"),
+  trailerUnitLabel: document.getElementById("trailerUnitLabel"),
+  trailerUnit: document.getElementById("trailerUnit"),
+  loadStatusLabel: document.getElementById("loadStatusLabel"),
+  loadStatus: document.getElementById("loadStatus"),
   truckSelect: document.getElementById("truckSelect"),
   driverCode: document.getElementById("driverCode"),
   inspectorCode: document.getElementById("inspectorCode"),
@@ -351,7 +416,12 @@ const els = {
   resetInspection: document.getElementById("resetInspection"),
   photoInput: document.getElementById("photoInput"),
   photoLabel: document.getElementById("photoLabel"),
+  photoHelp: document.getElementById("photoHelp"),
+  photoStatusLabel: document.getElementById("photoStatusLabel"),
+  photoStatus: document.getElementById("photoStatus"),
+  photoUploadLabel: document.getElementById("photoUploadLabel"),
   photoName: document.getElementById("photoName"),
+  photoPreviewList: document.getElementById("photoPreviewList"),
   signaturePad: document.getElementById("signaturePad"),
   inspectorSignaturePad: document.getElementById("inspectorSignaturePad"),
   clearSignature: document.getElementById("clearSignature"),
@@ -396,7 +466,8 @@ const formState = {
   selectedPartId: "tires",
   signatureDrawn: false,
   inspectorSignatureDrawn: false,
-  attachedPhoto: "",
+  pendingPhotoSlotId: "",
+  attachedPhotos: [],
   checks: Object.fromEntries(defaultChecklist.map((item) => [item.id, { value: "", note: "" }]))
 };
 
@@ -624,6 +695,7 @@ function setupEvents() {
   });
 
   els.truckSelect.addEventListener("change", renderQrPreview);
+  els.equipmentConfig.addEventListener("change", renderInspectionMeta);
   els.openQrButton.addEventListener("click", openSelectedTruckQr);
   els.selectedPartSelect.addEventListener("change", () => selectPart(els.selectedPartSelect.value));
   document.querySelectorAll(".checkout-form").forEach((form) => {
@@ -638,9 +710,29 @@ function setupEvents() {
   els.resetInspection.addEventListener("click", resetInspectionForm);
   els.submitInspection.addEventListener("click", submitInspection);
 
-  els.photoInput.addEventListener("change", () => {
-    formState.attachedPhoto = els.photoInput.files[0]?.name || "";
-    els.photoName.textContent = formState.attachedPhoto || t("noFile");
+  els.photoInput.addEventListener("change", async () => {
+    const file = els.photoInput.files[0];
+    const slotId = formState.pendingPhotoSlotId;
+    if (!file || !slotId) {
+      els.photoInput.value = "";
+      return;
+    }
+    const slot = getRequiredPhotoSlots().find((item) => item.id === slotId);
+    const nextPhoto = {
+      id: `${Date.now()}-${slotId}`,
+      slotId,
+      slotLabel: slot ? t(slot.labelKey) : file.name,
+      name: file.name,
+      type: file.type,
+      dataUrl: await readFileAsDataUrl(file)
+    };
+    formState.attachedPhotos = [
+      ...formState.attachedPhotos.filter((photo) => photo.slotId !== slotId),
+      nextPhoto
+    ];
+    formState.pendingPhotoSlotId = "";
+    els.photoInput.value = "";
+    renderPhotoPreviewList();
   });
 
   els.truckForm.addEventListener("submit", (event) => {
@@ -721,8 +813,11 @@ function renderAll() {
   renderLanguage();
   renderAccount();
   renderTruckSelect();
+  renderInspectionMeta();
   renderChecklist();
+  renderPhotoPreviewList();
   renderQrPreview();
+  renderSignatureAccess();
   renderDashboard();
   renderDrivers();
   renderHistory();
@@ -789,10 +884,29 @@ function renderLanguage() {
   els.truckLabel.textContent = t("truckLabel");
   els.driverCodeLabel.textContent = t("driverCodeLabel");
   els.inspectorCodeLabel.textContent = t("inspectorCodeLabel");
+  els.equipmentConfigLabel.textContent = t("equipmentConfigLabel");
+  setSelectOptions(els.equipmentConfig, [
+    { value: "truck-only", label: t("truckOnly") },
+    { value: "truck-trailer", label: t("truckTrailer") }
+  ]);
+  els.trailerUnitLabel.textContent = t("trailerUnitLabel");
+  els.loadStatusLabel.textContent = t("loadStatusLabel");
+  setSelectOptions(els.loadStatus, [
+    { value: "empty", label: t("loadEmpty") },
+    { value: "loaded", label: t("loadLoaded") },
+    { value: "returning", label: t("loadReturning") }
+  ]);
   els.qrCopy.textContent = t("qrCopy");
   els.openQrButton.textContent = t("openQr");
   els.photoLabel.textContent = t("photoLabel");
-  els.photoName.textContent = formState.attachedPhoto || t("noFile");
+  els.photoHelp.textContent = getPhotoRequirementText();
+  els.photoStatusLabel.textContent = t("photoStatusLabel");
+  setSelectOptions(els.photoStatus, [
+    { value: "clear", label: t("photoStatusClear") },
+    { value: "issue", label: t("photoStatusIssue") }
+  ]);
+  els.photoUploadLabel.textContent = t("photoUploadLabel");
+  updatePhotoSummary();
   els.driverSignatureLabel.textContent = t("driverSignatureLabel");
   els.inspectorSignatureLabel.textContent = t("inspectorSignatureLabel");
   els.clearSignature.textContent = t("clear");
@@ -831,6 +945,57 @@ function renderPartSelect() {
   els.selectedPartSelect.value = formState.selectedPartId;
 }
 
+function renderPhotoPreviewList() {
+  const slots = getRequiredPhotoSlots();
+  els.photoPreviewList.innerHTML = slots.map((slot) => {
+    const photo = formState.attachedPhotos.find((item) => item.slotId === slot.id);
+    return `
+      <article class="photo-slot ${photo ? "filled" : ""}">
+        <div class="photo-slot-header">
+          <strong>${escapeHtml(t(slot.labelKey))}</strong>
+          ${photo ? `<button type="button" class="text-button" data-remove-photo-slot="${escapeHtml(slot.id)}">${t("removePhoto")}</button>` : ""}
+        </div>
+        ${photo
+          ? `<img src="${photo.dataUrl}" alt="${escapeHtml(t(slot.labelKey))}">`
+          : `<div class="photo-slot-placeholder">${escapeHtml(t(slot.labelKey))}</div>`}
+        <button type="button" class="${photo ? "secondary" : ""}" data-photo-slot="${escapeHtml(slot.id)}">
+          ${photo ? t("retakePhoto") : t("takePhoto")}
+        </button>
+      </article>
+    `;
+  }).join("");
+
+  els.photoPreviewList.querySelectorAll("[data-photo-slot]").forEach((button) => {
+    button.addEventListener("click", () => {
+      formState.pendingPhotoSlotId = button.dataset.photoSlot || "";
+      els.photoInput.click();
+    });
+  });
+
+  els.photoPreviewList.querySelectorAll("[data-remove-photo-slot]").forEach((button) => {
+    button.addEventListener("click", () => {
+      formState.attachedPhotos = formState.attachedPhotos.filter((photo) => photo.slotId !== button.dataset.removePhotoSlot);
+      renderPhotoPreviewList();
+    });
+  });
+
+  updatePhotoSummary();
+  renderSignatureAccess();
+}
+
+function updatePhotoSummary() {
+  const required = getRequiredPhotoCount();
+  els.photoName.textContent = formState.attachedPhotos.length
+    ? t("photosAdded", { count: formState.attachedPhotos.length, required })
+    : t("noFile");
+}
+
+function setSelectOptions(select, options) {
+  const currentValue = select.value;
+  select.innerHTML = options.map((option) => `<option value="${option.value}">${escapeHtml(option.label)}</option>`).join("");
+  select.value = options.some((option) => option.value === currentValue) ? currentValue : options[0]?.value || "";
+}
+
 function setLanguage(language) {
   formState.language = language;
   localStorage.setItem("roadready-language", language);
@@ -842,6 +1007,23 @@ function renderTruckSelect() {
   els.truckSelect.innerHTML = trucks.length
     ? trucks.map((truck) => `<option value="${truck.id}">${escapeHtml(truck.name)} - ${escapeHtml(truck.plate)}</option>`).join("")
     : `<option value="">${escapeHtml(t("registerTruckFirst"))}</option>`;
+}
+
+function renderInspectionMeta() {
+  const trailerConnected = els.equipmentConfig.value === "truck-trailer";
+  els.trailerUnitField.classList.toggle("hidden", !trailerConnected);
+  els.photoHelp.textContent = getPhotoRequirementText();
+  formState.attachedPhotos = formState.attachedPhotos.filter((photo) => {
+    return getRequiredPhotoSlots().some((slot) => slot.id === photo.slotId);
+  });
+  renderPhotoPreviewList();
+  updatePhotoSummary();
+}
+
+function renderSignatureAccess() {
+  const locked = formState.attachedPhotos.length < getRequiredPhotoCount();
+  els.signaturePad.classList.toggle("signature-locked", locked);
+  els.inspectorSignaturePad.classList.toggle("signature-locked", locked);
 }
 
 function renderChecklist() {
@@ -961,6 +1143,12 @@ function renderHistory() {
   els.historyList.innerHTML = records.length ? records.map((record) => {
     const truck = getTrucks().find((item) => item.id === record.truckId);
     const failed = record.failed.length ? record.failed.map((label) => translatedFailure(label)).join(", ") : t("noFailures");
+    const trailerLine = record.equipmentConfig === "truck-trailer"
+      ? `${t("truckTrailer")} - ${escapeHtml(record.trailerUnit || t("trailerUnitLabel"))}`
+      : t("truckOnly");
+    const photoLine = record.photos?.length
+      ? t("photosAdded", { count: record.photos.length })
+      : t("noFile");
     return `
       <article class="history-row">
         <div>
@@ -969,6 +1157,7 @@ function renderHistory() {
         </div>
         <div class="history-actions">
           <p>${escapeHtml(failed)}</p>
+          <p>${trailerLine} - ${escapeHtml(loadStatusLabel(record.loadStatus || "empty"))} - ${escapeHtml(photoLine)}</p>
           <button type="button" class="secondary" data-summary-id="${escapeHtml(record.id)}">${t("aiSummary")}</button>
         </div>
         ${record.aiSummary ? `<div class="summary-box">${escapeHtml(record.aiSummary)}</div>` : ""}
@@ -1013,6 +1202,17 @@ function submitInspection() {
     return;
   }
 
+  if (els.equipmentConfig.value === "truck-trailer" && !els.trailerUnit.value.trim()) {
+    setFormStatus(t("trailerUnitRequired"), "error");
+    return;
+  }
+
+  const requiredPhotos = getRequiredPhotoCount();
+  if (formState.attachedPhotos.length < requiredPhotos) {
+    setFormStatus(t("photoRequiredBeforeSubmit", { required: requiredPhotos }), "error");
+    return;
+  }
+
   const missing = defaultChecklist.filter((item) => !formState.checks[item.id].value);
   if (missing.length) {
     setFormStatus(t("completeMissing", { items: missing.map((item) => partLabel(item.id)).join(", ") }), "error");
@@ -1052,9 +1252,13 @@ function submitInspection() {
     inspectorId: inspector?.id || "",
     inspectorName: inspector?.name || els.inspectorCode.value.trim(),
     inspectorCode: els.inspectorCode.value.trim(),
+    equipmentConfig: els.equipmentConfig.value,
+    trailerUnit: els.trailerUnit.value.trim(),
+    loadStatus: els.loadStatus.value,
     status,
     failed: failedItems,
-    photo: formState.attachedPhoto,
+    photoStatus: els.photoStatus.value,
+    photos: structuredClone(formState.attachedPhotos),
     driverSignature: els.signaturePad.toDataURL("image/png"),
     inspectorSignature: els.inspectorSignaturePad.toDataURL("image/png"),
     checks: structuredClone(formState.checks),
@@ -1073,15 +1277,20 @@ function resetInspectionForm(options = {}) {
     formState.checks[id] = { value: "", note: "" };
     updateTruckPartColor(id);
   });
-  formState.attachedPhoto = "";
+  formState.attachedPhotos = [];
   formState.signatureDrawn = false;
   formState.inspectorSignatureDrawn = false;
+  els.equipmentConfig.value = "truck-only";
+  els.trailerUnit.value = "";
+  els.loadStatus.value = "empty";
+  els.photoStatus.value = "clear";
   els.photoInput.value = "";
-  els.photoName.textContent = t("noFile");
   els.driverCode.value = "";
   els.inspectorCode.value = "";
   clearSignature();
   clearInspectorSignature();
+  renderInspectionMeta();
+  renderPhotoPreviewList();
   renderChecklist();
   if (!options.silent) {
     setFormStatus(t("resetDone"), "success");
@@ -1110,6 +1319,37 @@ function buildTruckScanUrl(truck) {
 
 function buildQrImageUrl(truck) {
   return `/api/qr?data=${encodeURIComponent(buildTruckScanUrl(truck))}`;
+}
+
+function getRequiredPhotoCount() {
+  return getRequiredPhotoSlots().length;
+}
+
+function getPhotoRequirementText() {
+  return els.equipmentConfig.value === "truck-trailer"
+    ? t("photoHelpTruckTrailer")
+    : t("photoHelpTruckOnly");
+}
+
+function getRequiredPhotoSlots() {
+  const truckOnlySlots = [
+    { id: "truck-front", labelKey: "truckFront" },
+    { id: "truck-back", labelKey: "truckBack" },
+    { id: "truck-left", labelKey: "truckLeft" },
+    { id: "truck-right", labelKey: "truckRight" }
+  ];
+
+  if (els.equipmentConfig.value !== "truck-trailer") {
+    return truckOnlySlots;
+  }
+
+  return [
+    ...truckOnlySlots,
+    { id: "trailer-front", labelKey: "trailerFront" },
+    { id: "trailer-back", labelKey: "trailerBack" },
+    { id: "trailer-left", labelKey: "trailerLeft" },
+    { id: "trailer-right", labelKey: "trailerRight" }
+  ];
 }
 
 function openSelectedTruckQr() {
@@ -1271,6 +1511,15 @@ function isValidEmail(value) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = () => reject(reader.error || new Error("Could not read file."));
+    reader.readAsDataURL(file);
+  });
+}
+
 function setupSignaturePad() {
   setupPad({
     canvas: els.signaturePad,
@@ -1308,6 +1557,11 @@ function setupPad({ canvas, clearButton, onDraw, clear }) {
 
   const start = (event) => {
     event.preventDefault();
+    const requiredPhotos = getRequiredPhotoCount();
+    if (formState.attachedPhotos.length < requiredPhotos) {
+      setFormStatus(t("photoRequiredBeforeSign", { required: requiredPhotos }), "error");
+      return;
+    }
     drawing = true;
     const point = getPoint(event);
     ctx.beginPath();
@@ -1759,6 +2013,16 @@ function statusLabel(status) {
   };
 
   return t(statusKeys[status] || status);
+}
+
+function loadStatusLabel(value) {
+  const statusKeys = {
+    empty: "loadEmpty",
+    loaded: "loadLoaded",
+    returning: "loadReturning"
+  };
+
+  return t(statusKeys[value] || value);
 }
 
 function translatedFailure(value) {

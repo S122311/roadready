@@ -131,6 +131,28 @@
           </label>
         </div>
 
+        <div class="inspection-meta-grid">
+          <label>
+            <span id="equipmentConfigLabel">Equipment setup</span>
+            <select id="equipmentConfig">
+              <option value="truck-only">Truck only</option>
+              <option value="truck-trailer">Truck + trailer connected</option>
+            </select>
+          </label>
+          <label id="trailerUnitField" class="hidden">
+            <span id="trailerUnitLabel">Trailer or load unit</span>
+            <input id="trailerUnit" type="text" placeholder="TRL-2048">
+          </label>
+          <label>
+            <span id="loadStatusLabel">Load status</span>
+            <select id="loadStatus">
+              <option value="empty">Empty</option>
+              <option value="loaded">Loaded</option>
+              <option value="returning">Returning with trailer</option>
+            </select>
+          </label>
+        </div>
+
         <div class="qr-row">
           <div id="qrPreview" class="qr-preview" aria-label="Truck QR code preview"></div>
           <div>
@@ -142,11 +164,27 @@
 
         <div id="checklist" class="checklist"></div>
 
-        <label class="photo-field">
-          <span id="photoLabel">Damage photo or document</span>
-          <input id="photoInput" type="file" accept="image/*">
-          <span id="photoName">No file attached</span>
-        </label>
+        <section class="photo-panel" aria-label="Inspection photo upload">
+          <div class="photo-panel-header">
+            <div>
+              <strong id="photoLabel">Damage photo or document</strong>
+              <p id="photoHelp">Upload photos even when no damage is found so the condition is documented.</p>
+            </div>
+            <label class="photo-status-field">
+              <span id="photoStatusLabel">Photo set</span>
+              <select id="photoStatus">
+                <option value="clear">No visible damage</option>
+                <option value="issue">Damage or issue documented</option>
+              </select>
+            </label>
+          </div>
+          <label class="photo-field">
+            <span id="photoUploadLabel">Inspection photos</span>
+            <input id="photoInput" class="hidden" type="file" accept="image/*" capture="environment">
+            <span id="photoName">No file attached</span>
+          </label>
+          <div id="photoPreviewList" class="photo-slot-list"></div>
+        </section>
 
         <div class="signature-grid">
           <div class="signature-wrap">

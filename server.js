@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import fs from "fs/promises";
+import nodemailer from "nodemailer";
 import OpenAI from "openai";
 import path from "path";
 import QRCode from "qrcode";
@@ -12,6 +13,7 @@ const port = Number(process.env.PORT || 3002);
 const appUrl = process.env.APP_URL || `http://localhost:${port}`;
 const openai = process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null;
 const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY) : null;
+const mailer = createMailer();
 const stripePrices = {
   starter: process.env.STRIPE_PRICE_STARTER || "",
   fleet: process.env.STRIPE_PRICE_FLEET || "",
@@ -173,6 +175,73 @@ app.post("/api/inspections/summary", async (req, res) => {
   res.json({ summary: inspection.aiSummary, state });
 });
 
+app.post("/api/repairs/refer", async (req, res) => {
+  const { companyId, truckId, inspectionId, mechanicEmail } = req.body || {};
+  const email = String(mechanicEmail || "").trim();
+  if (!companyId || !truckId || !inspectionId || !email) {
+    res.status(400).json({ error: "Company, truck, inspection, and mechanic email are required." });
+    return;
+  }
+
+  if (!mailer) {
+    res.status(503).json({ error: "Email is not configured. Add SMTP settings on the server to send mechanic referrals." });
+    return;
+  }
+
+  const state = await readState();
+  const company = state.companies.find((item) => item.id === companyId);
+  const truck = company?.trucks.find((item) => item.id === truckId);
+  const inspection = company?.inspections.find((item) => item.id === inspectionId);
+
+  if (!company || !truck || !inspection) {
+    res.status(404).json({ error: "Repair referral source record was not found." });
+    return;
+  }
+
+  const failedItems = (inspection.failed || []).map((item) => translateFailureServer(item)).join(", ") || "No failures listed";
+  const notes = Object.entries(inspection.checks || {})
+    .filter(([, check]) => check?.value === "fail")
+    .map(([key, check]) => `- ${translateFailureServer(key)}: ${check.note || "No note added"}`)
+    .join("\n") || "- No failure notes recorded";
+
+  const subject = `RoadReady repair referral for ${truck.name} (${truck.plate})`;
+  const text = [
+    `Company: ${company.name}`,
+    `Truck: ${truck.name} (${truck.plate})`,
+    inspection.trailerUnit ? `Trailer/Load Unit: ${inspection.trailerUnit}` : "",
+    `Driver: ${inspection.driverName}`,
+    `Inspector: ${inspection.inspectorName || inspection.inspectorCode || "Unknown"}`,
+    `Dispatch status: ${inspection.status}`,
+    `Reported failures: ${failedItems}`,
+    "",
+    "Failure notes:",
+    notes,
+    "",
+    inspection.aiSummary ? `AI summary:\n${inspection.aiSummary}` : "",
+    `Inspection time: ${inspection.createdAt}`
+  ].filter(Boolean).join("\n");
+
+  try {
+    await mailer.sendMail({
+      from: process.env.SMTP_FROM || process.env.SMTP_USER,
+      to: email,
+      subject,
+      text
+    });
+  } catch (error) {
+    res.status(502).json({ error: error.message || "Could not send the repair referral email." });
+    return;
+  }
+
+  inspection.repairReferral = {
+    mechanicEmail: email,
+    sentAt: new Date().toISOString(),
+    inspectionId
+  };
+  await writeState(state);
+  res.json({ ok: true, state });
+});
+
 app.listen(port, () => {
   console.log(`RoadReady listening on http://localhost:${port}`);
 });
@@ -193,6 +262,22 @@ async function readState() {
 async function writeState(state) {
   await fs.mkdir(dataDir, { recursive: true });
   await fs.writeFile(stateFile, JSON.stringify(state, null, 2));
+}
+
+function createMailer() {
+  if (!process.env.SMTP_HOST || !process.env.SMTP_PORT || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
+    return null;
+  }
+
+  return nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: Number(process.env.SMTP_PORT),
+    secure: String(process.env.SMTP_SECURE || "").toLowerCase() === "true" || Number(process.env.SMTP_PORT) === 465,
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS
+    }
+  });
 }
 
 async function createCheckoutSession({ companyId, plan }) {
@@ -263,6 +348,22 @@ function httpError(statusCode, message) {
   const error = new Error(message);
   error.statusCode = statusCode;
   return error;
+}
+
+function translateFailureServer(value) {
+  const labels = {
+    tires: "Tires",
+    brakes: "Brakes",
+    lights: "Lights",
+    mirrors: "Mirrors",
+    windshield: "Windshield and wipers",
+    fluids: "Fluids and leaks",
+    coupling: "Fifth wheel and coupling",
+    load: "Load securement",
+    safety: "Safety equipment"
+  };
+
+  return labels[value] || value;
 }
 
 function sanitizeState(value) {

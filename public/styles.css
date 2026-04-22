@@ -325,6 +325,13 @@ h2 {
   gap: 12px;
 }
 
+.inspection-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 12px;
+}
+
 .qr-row {
   display: grid;
   grid-template-columns: 88px 1fr;
@@ -486,6 +493,81 @@ h2 {
   font-weight: 600;
 }
 
+.photo-panel {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.photo-panel-header {
+  display: flex;
+  gap: 14px;
+  align-items: start;
+  justify-content: space-between;
+}
+
+.photo-panel-header p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.photo-status-field {
+  min-width: 240px;
+}
+
+.photo-slot-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.photo-slot {
+  display: grid;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+}
+
+.photo-slot img,
+.photo-slot-placeholder {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 8px;
+}
+
+.photo-slot img {
+  object-fit: cover;
+  background: #e8eef0;
+}
+
+.photo-slot-placeholder {
+  display: grid;
+  place-items: center;
+  padding: 12px;
+  background: #eef2f4;
+  color: var(--muted);
+  text-align: center;
+  font-weight: 800;
+}
+
+.photo-slot-header {
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+  align-items: start;
+}
+
+.photo-slot-header strong {
+  overflow-wrap: anywhere;
+}
+
 .signature-wrap {
   margin-top: 16px;
 }
@@ -516,6 +598,12 @@ h2 {
   border-radius: 8px;
   background: white;
   touch-action: none;
+}
+
+#signaturePad.signature-locked,
+#inspectorSignaturePad.signature-locked {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .form-status {
@@ -643,6 +731,68 @@ h2 {
   line-height: 1.4;
 }
 
+.repair-toggle {
+  align-self: start;
+  min-height: 0;
+  padding: 8px 12px;
+  border: 0;
+  font-weight: 800;
+}
+
+.repair-toggle.repair {
+  background: #ffe4e0;
+  color: var(--red);
+}
+
+.repair-toggle.repair:hover {
+  background: #ffd7d1;
+}
+
+.repair-detail {
+  grid-column: 1 / -1;
+  padding-top: 4px;
+}
+
+.repair-detail-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 12px;
+}
+
+.repair-summary-card {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+}
+
+.repair-summary-card p,
+.repair-summary-card strong {
+  margin: 0;
+}
+
+.repair-detail-copy,
+.repair-referral-status {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.repair-notes {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--ink);
+}
+
+.repair-notes li + li {
+  margin-top: 6px;
+}
+
+.repair-email-field {
+  margin-top: 4px;
+}
+
 mark {
   align-self: start;
   border-radius: 8px;
@@ -746,6 +896,7 @@ mark.pending {
 
   .status-strip,
   .form-grid,
+  .inspection-meta-grid,
   .setup-form,
   .signature-grid,
   .admin-actions {
@@ -774,6 +925,18 @@ mark.pending {
   .history-row,
   .plan-grid {
     grid-template-columns: 1fr;
+  }
+
+  .repair-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .photo-panel-header {
+    flex-direction: column;
+  }
+
+  .photo-status-field {
+    min-width: 0;
   }
 
   .history-actions {

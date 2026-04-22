@@ -60,8 +60,8 @@ const translations = {
     qrCopy: "Print this code and place it inside the cab. Scanning it opens the truck inspection form.",
     openQr: "Open QR",
     photoLabel: "Damage photo or document",
-    photoHelpTruckOnly: "Take 4 photos now: truck front, truck back, left side, and right side.",
-    photoHelpTruckTrailer: "Take 8 photos now: truck front, truck back, truck left, truck right, trailer front, trailer back, trailer left, and trailer right.",
+    photoHelpTruckOnly: "Take 4 photos now, even with no damage: truck front, truck back, left side, and right side.",
+    photoHelpTruckTrailer: "Take 8 photos now, even with no damage: truck front, truck back, truck left, truck right, trailer front, trailer back, trailer left, and trailer right.",
     photoStatusLabel: "Photo set",
     photoStatusClear: "No visible damage",
     photoStatusIssue: "Damage or issue documented",
@@ -221,8 +221,8 @@ const translations = {
     qrCopy: "Imprime este código y colócalo dentro de la cabina. Al escanearlo se abre el formulario.",
     openQr: "Abrir QR",
     photoLabel: "Foto o documento del daño",
-    photoHelpTruckOnly: "Toma 4 fotos ahora: frente del camión, parte trasera, lado izquierdo y lado derecho.",
-    photoHelpTruckTrailer: "Toma 8 fotos ahora: frente y parte trasera del camión, lados izquierdo y derecho del camión, frente y parte trasera del remolque, lados izquierdo y derecho del remolque.",
+    photoHelpTruckOnly: "Toma 4 fotos ahora, aunque no haya daños: frente del camión, parte trasera, lado izquierdo y lado derecho.",
+    photoHelpTruckTrailer: "Toma 8 fotos ahora, aunque no haya daños: frente y parte trasera del camión, lados izquierdo y derecho del camión, frente y parte trasera del remolque, lados izquierdo y derecho del remolque.",
     photoStatusLabel: "Juego de fotos",
     photoStatusClear: "Sin daños visibles",
     photoStatusIssue: "Daño o problema documentado",
@@ -380,6 +380,10 @@ const els = {
   adminPinLabel: document.getElementById("adminPinLabel"),
   statusStrip: document.getElementById("statusStrip"),
   operationsGrid: document.getElementById("operationsGrid"),
+  fleetPanel: document.getElementById("fleetPanel"),
+  setupPanel: document.getElementById("setupPanel"),
+  billingPanel: document.getElementById("billingPanel"),
+  historyPanel: document.getElementById("historyPanel"),
   adminLockedNotice: document.getElementById("adminLockedNotice"),
   adminLockedTitle: document.getElementById("adminLockedTitle"),
   adminLockedCopy: document.getElementById("adminLockedCopy"),
@@ -844,7 +848,11 @@ function renderAdminAccess() {
   els.adminForm.classList.toggle("hidden", !hasCompany);
   els.adminLockedNotice.classList.toggle("hidden", !hasCompany || formState.isAdmin);
   els.statusStrip.classList.toggle("hidden", !formState.isAdmin);
-  els.operationsGrid.classList.toggle("hidden", !formState.isAdmin);
+  els.operationsGrid.classList.toggle("hidden", !hasCompany);
+  els.fleetPanel.classList.toggle("hidden", !hasCompany);
+  els.historyPanel.classList.toggle("hidden", !hasCompany);
+  els.setupPanel.classList.toggle("hidden", !formState.isAdmin);
+  els.billingPanel.classList.toggle("hidden", !formState.isAdmin);
   els.lockAdmin.classList.toggle("hidden", !formState.isAdmin);
   els.unlockAdmin.classList.toggle("hidden", formState.isAdmin);
   els.adminPin.disabled = formState.isAdmin;

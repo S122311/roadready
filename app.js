@@ -143,6 +143,24 @@ const translations = {
     inspectorSignatureRequired: "Inspector signature is required.",
     cleared: "{truck} is cleared to leave.",
     blocked: "{truck} is blocked until a manager clears repairs.",
+    repairSummary: "Repair summary",
+    repairReferral: "Refer to mechanic",
+    mechanicEmailLabel: "Mechanic email",
+    mechanicEmailPlaceholder: "mechanic@shop.com",
+    mechanicEmailInvalid: "Enter a valid mechanic email.",
+    referralSent: "Repair referral sent to {email}.",
+    referralConfigMissing: "Email is not configured on the server yet. Add SMTP settings before sending mechanic referrals.",
+    viewRepair: "View repair details",
+    hideRepair: "Hide repair details",
+    noRepairNotes: "No repair notes were added.",
+    latestInspectionLabel: "Latest failed inspection",
+    dispatchStatusLabel: "Dispatch status",
+    reportedIssuesLabel: "Reported issues",
+    repairNotesLabel: "Repair notes",
+    trailerLabel: "Trailer / load unit",
+    noRepairHistory: "No repair inspection is saved for this truck yet.",
+    referralSentAt: "Referral sent to {email} on {date}.",
+    sendReferral: "Send referral",
     resetDone: "Inspection form reset.",
     pass: "Pass",
     fail: "Fail",
@@ -304,6 +322,24 @@ const translations = {
     inspectorSignatureRequired: "La firma del inspector es obligatoria.",
     cleared: "{truck} está autorizado para salir.",
     blocked: "{truck} queda bloqueado hasta que un gerente apruebe las reparaciones.",
+    repairSummary: "Resumen de reparación",
+    repairReferral: "Enviar al mecánico",
+    mechanicEmailLabel: "Correo del mecánico",
+    mechanicEmailPlaceholder: "mecanico@taller.com",
+    mechanicEmailInvalid: "Ingresa un correo válido del mecánico.",
+    referralSent: "El aviso de reparación se envió a {email}.",
+    referralConfigMissing: "El correo no está configurado todavía en el servidor. Agrega SMTP antes de enviar avisos al mecánico.",
+    viewRepair: "Ver detalles de reparación",
+    hideRepair: "Ocultar detalles de reparación",
+    noRepairNotes: "No se agregaron notas de reparación.",
+    latestInspectionLabel: "Última inspección fallida",
+    dispatchStatusLabel: "Estado de salida",
+    reportedIssuesLabel: "Problemas reportados",
+    repairNotesLabel: "Notas de reparación",
+    trailerLabel: "Remolque / unidad de carga",
+    noRepairHistory: "Todavía no hay una inspección de reparación guardada para este camión.",
+    referralSentAt: "El aviso se envió a {email} el {date}.",
+    sendReferral: "Enviar aviso",
     resetDone: "Formulario reiniciado.",
     pass: "Pasa",
     fail: "Falla",
@@ -468,6 +504,7 @@ const formState = {
   language: localStorage.getItem("roadready-language") || "en",
   isAdmin: false,
   selectedPartId: "tires",
+  expandedRepairTruckId: "",
   signatureDrawn: false,
   inspectorSignatureDrawn: false,
   pendingPhotoSlotId: "",
@@ -709,6 +746,20 @@ function setupEvents() {
     const button = event.target.closest("[data-summary-id]");
     if (button) {
       createAiSummary(button.dataset.summaryId);
+    }
+  });
+  els.truckList.addEventListener("click", (event) => {
+    const toggle = event.target.closest("[data-repair-toggle]");
+    if (toggle) {
+      const truckId = toggle.dataset.repairToggle || "";
+      formState.expandedRepairTruckId = formState.expandedRepairTruckId === truckId ? "" : truckId;
+      renderDashboard();
+      return;
+    }
+
+    const refer = event.target.closest("[data-refer-mechanic]");
+    if (refer) {
+      referToMechanic(refer.dataset.referMechanic || "");
     }
   });
   els.resetInspection.addEventListener("click", resetInspectionForm);
@@ -1109,16 +1160,77 @@ function renderDashboard() {
 
   els.truckList.innerHTML = trucks.length ? trucks.map((truck) => {
     const className = truck.status === "Ready" ? "ready" : truck.status === "Needs repair" ? "repair" : "pending";
+    const repairInspection = getLatestRepairInspectionForTruck(truck.id);
+    const isExpanded = formState.expandedRepairTruckId === truck.id && truck.status === "Needs repair";
+    const repairDetails = truck.status === "Needs repair"
+      ? renderRepairDetails(truck, repairInspection, isExpanded)
+      : "";
+    const statusControl = truck.status === "Needs repair"
+      ? `<button type="button" class="repair-toggle ${className}" data-repair-toggle="${escapeHtml(truck.id)}" aria-expanded="${String(isExpanded)}">${escapeHtml(isExpanded ? t("hideRepair") : statusLabel(truck.status))}</button>`
+      : `<mark class="${className}">${escapeHtml(statusLabel(truck.status))}</mark>`;
     return `
       <article class="truck-row">
         <div>
           <strong>${escapeHtml(truck.name)}</strong>
           <span>${escapeHtml(truck.plate)}${truck.vin ? ` - VIN ${escapeHtml(truck.vin)}` : ""} - QR ${escapeHtml(truck.qr)}</span>
         </div>
-        <mark class="${className}">${escapeHtml(statusLabel(truck.status))}</mark>
+        ${statusControl}
+        ${repairDetails}
       </article>
     `;
   }).join("") : `<p class="empty-state">${escapeHtml(t("noTrucks"))}</p>`;
+}
+
+function renderRepairDetails(truck, inspection, isExpanded) {
+  if (!isExpanded) {
+    return "";
+  }
+
+  if (!inspection) {
+    return `<div class="repair-detail"><p class="empty-state">${escapeHtml(t("noRepairHistory"))}</p></div>`;
+  }
+
+  const failedItems = inspection.failed?.length
+    ? inspection.failed.map((item) => translatedFailure(item)).join(", ")
+    : t("noFailures");
+  const notes = getInspectionFailureNotes(inspection);
+  const notesMarkup = notes.length
+    ? `<ul class="repair-notes">${notes.map((note) => `<li>${escapeHtml(note)}</li>`).join("")}</ul>`
+    : `<p class="repair-detail-copy">${escapeHtml(t("noRepairNotes"))}</p>`;
+  const existingEmail = inspection.repairReferral?.mechanicEmail || "";
+  const sentMarkup = inspection.repairReferral?.sentAt
+    ? `<p class="repair-referral-status">${escapeHtml(t("referralSentAt", { email: inspection.repairReferral.mechanicEmail, date: formatDate(inspection.repairReferral.sentAt) }))}</p>`
+    : "";
+  const trailerLine = inspection.equipmentConfig === "truck-trailer"
+    ? `<p><strong>${escapeHtml(t("trailerLabel"))}:</strong> ${escapeHtml(inspection.trailerUnit || t("trailerUnitLabel"))}</p>`
+    : "";
+  const summaryText = inspection.aiSummary || notes.join(" ") || failedItems;
+
+  return `
+    <section class="repair-detail">
+      <div class="repair-detail-grid">
+        <div class="repair-summary-card">
+          <p class="eyebrow">${escapeHtml(t("repairSummary"))}</p>
+          <strong>${escapeHtml(t("latestInspectionLabel"))}</strong>
+          <p class="repair-detail-copy">${escapeHtml(formatDate(inspection.createdAt))}</p>
+          <p><strong>${escapeHtml(t("dispatchStatusLabel"))}:</strong> ${escapeHtml(statusLabel(inspection.status))}</p>
+          <p><strong>${escapeHtml(t("reportedIssuesLabel"))}:</strong> ${escapeHtml(failedItems)}</p>
+          ${trailerLine}
+          <p><strong>${escapeHtml(t("repairSummary"))}:</strong> ${escapeHtml(summaryText)}</p>
+        </div>
+        <div class="repair-summary-card">
+          <p class="eyebrow">${escapeHtml(t("repairNotesLabel"))}</p>
+          ${notesMarkup}
+          ${sentMarkup}
+          <label class="repair-email-field">
+            <span>${escapeHtml(t("mechanicEmailLabel"))}</span>
+            <input type="email" data-mechanic-email="${escapeHtml(truck.id)}" value="${escapeHtml(existingEmail)}" placeholder="${escapeHtml(t("mechanicEmailPlaceholder"))}">
+          </label>
+          <button type="button" data-refer-mechanic="${escapeHtml(truck.id)}">${escapeHtml(t("sendReferral"))}</button>
+        </div>
+      </div>
+    </section>
+  `;
 }
 
 function renderDrivers() {
@@ -1172,6 +1284,18 @@ function renderHistory() {
       </article>
     `;
   }).join("") : `<p class="empty-state">${escapeHtml(t("noInspections"))}</p>`;
+}
+
+function getLatestRepairInspectionForTruck(truckId) {
+  return [...getInspections()]
+    .filter((inspection) => inspection.truckId === truckId && inspection.failed?.length)
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0] || null;
+}
+
+function getInspectionFailureNotes(inspection) {
+  return Object.entries(inspection.checks || {})
+    .filter(([, check]) => check?.value === "fail")
+    .map(([partId, check]) => `${translatedFailure(partId)}: ${check.note?.trim() || t("noRepairNotes")}`);
 }
 
 function renderBilling() {
@@ -1499,6 +1623,59 @@ async function createAiSummary(inspectionId) {
     if (button) {
       button.textContent = originalText;
       button.disabled = false;
+    }
+  }
+}
+
+async function referToMechanic(truckId) {
+  const company = getCompany();
+  const inspection = getLatestRepairInspectionForTruck(truckId);
+  const input = els.truckList.querySelector(`[data-mechanic-email="${CSS.escape(truckId)}"]`);
+  const mechanicEmail = input?.value.trim() || "";
+
+  if (!company || !inspection) {
+    setFormStatus(t("noRepairHistory"), "error");
+    return;
+  }
+
+  if (!isValidEmail(mechanicEmail)) {
+    setFormStatus(t("mechanicEmailInvalid"), "error");
+    input?.focus();
+    return;
+  }
+
+  const button = els.truckList.querySelector(`[data-refer-mechanic="${CSS.escape(truckId)}"]`);
+  const originalText = button?.textContent || t("sendReferral");
+  if (button) {
+    button.disabled = true;
+    button.textContent = t("repairReferral");
+  }
+
+  try {
+    const response = await fetch("/api/repairs/refer", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        companyId: company.id,
+        truckId,
+        inspectionId: inspection.id,
+        mechanicEmail
+      })
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      const fallback = response.status === 503 ? t("referralConfigMissing") : t("mechanicEmailInvalid");
+      throw new Error(data.error || fallback);
+    }
+    appState = normalizeState(data.state);
+    formState.expandedRepairTruckId = truckId;
+    renderAll();
+    setFormStatus(t("referralSent", { email: mechanicEmail }), "success");
+  } catch (error) {
+    setFormStatus(error.message || t("referralConfigMissing"), "error");
+    if (button) {
+      button.disabled = false;
+      button.textContent = originalText;
     }
   }
 }

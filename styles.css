@@ -731,6 +731,68 @@ h2 {
   line-height: 1.4;
 }
 
+.repair-toggle {
+  align-self: start;
+  min-height: 0;
+  padding: 8px 12px;
+  border: 0;
+  font-weight: 800;
+}
+
+.repair-toggle.repair {
+  background: #ffe4e0;
+  color: var(--red);
+}
+
+.repair-toggle.repair:hover {
+  background: #ffd7d1;
+}
+
+.repair-detail {
+  grid-column: 1 / -1;
+  padding-top: 4px;
+}
+
+.repair-detail-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 12px;
+}
+
+.repair-summary-card {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+}
+
+.repair-summary-card p,
+.repair-summary-card strong {
+  margin: 0;
+}
+
+.repair-detail-copy,
+.repair-referral-status {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.repair-notes {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--ink);
+}
+
+.repair-notes li + li {
+  margin-top: 6px;
+}
+
+.repair-email-field {
+  margin-top: 4px;
+}
+
 mark {
   align-self: start;
   border-radius: 8px;
@@ -862,6 +924,10 @@ mark.pending {
 
   .history-row,
   .plan-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .repair-detail-grid {
     grid-template-columns: 1fr;
   }
 
